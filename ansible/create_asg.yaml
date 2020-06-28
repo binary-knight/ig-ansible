@@ -56,8 +56,11 @@
     - name: Create Network Load Balancer
       elb_network_lb:
         name: Module5-ig-nlb
-        subnets:
-          - "{{ public_subnet1.subnet.id }}"
+        subnet_mappings:
+          - SubnetId: "{{ public_subnet1.subnet.id }}"
+            AllocationId: "{{ eip1.allocation_id }}"
+          - SubnetId: "{{ public_subnet2.subnet.id }}"
+            AllocationId: "{{ eip2.allocation_id }}"
         listeners:
           - Protocol: TCP
             Port: 80
@@ -78,7 +81,7 @@
         db: image_gallery
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
-        login_password: PassMe12#$
+        login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3') }}"
         table: users
         columns:
           - username TEXT PRIMARY KEY NOT NULL
