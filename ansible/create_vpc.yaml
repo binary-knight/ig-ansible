@@ -100,15 +100,14 @@
             gateway_id: "{{ngw.nat_gateway_id }}"
          state: present    
 
-    - name: Allocate EIP1 but don't associate
-      ec2_eip:
-        reuse_existing_ip_allowed: yes
-        tag_name: M5-EIP
+    - name: Gathering and Registering EIP 1
+      ec2_eip_info:
+        filters:
+          tag:Name: M5-EIP1
       register: eip1
 
-    - name: Allocate EIP2 but don't associate
-      ec2_eip:
-        in_vpc: yes
-        reuse_existing_ip_allowed: yes
-        tag_name: M5-EIP
+     - name: Gathering and Registering EIP 2
+      ec2_eip_info:
+        filters:
+          tag:Name: M5-EIP2
       register: eip2
