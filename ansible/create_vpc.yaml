@@ -103,13 +103,13 @@
     - name: Allocate EIP1 but don't associate
       ec2_eip:
         reuse_existing_ip_allowed: yes
-        tag_value: M5-EIP
+        tag_name: M5-EIP
         state: present
       register: eip1
 
     - name: Allocate EIP2 but don't associate
       ec2_eip:
         reuse_existing_ip_allowed: yes
-        tag_value: M5-EIP
+        tag_name: M5-EIP
         state: present
       register: eip2
