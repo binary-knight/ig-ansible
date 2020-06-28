@@ -81,7 +81,7 @@
         db: image_gallery
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
-        login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3') }}"
+        login_password: PassMe12#$
         table: users
         columns:
           - username TEXT PRIMARY KEY NOT NULL
