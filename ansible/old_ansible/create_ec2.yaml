@@ -1,0 +1,58 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    ami_id: "ami-09d95fab7fff3776c"
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+  tasks:
+    - name: Provision Jason's EC2 Instance
+      ec2:
+        key_name: cloudclass
+        group: Module5-developer-sg
+        instance_type: t3.nano
+        image: "{{ ami_id }}"
+        instance_tags:
+          Name: Module5 Jason
+          Module: 5
+        wait: yes
+        vpc_subnet_id: "{{ public_subnet.subnet.id }}"
+        assign_public_ip: yes
+        exact_count: 1
+        count_tag: 
+          Name: Module5 Jason
+    - name: Provision Job's EC2 Instance
+      ec2:
+        key_name: cloudclass
+        group: Module5-developer-sg
+        instance_type: t3.nano
+        image: "{{ ami_id }}"
+        instance_tags:
+          Name: Module5 Job
+          Module: 5
+        wait: yes
+        vpc_subnet_id: "{{ public_subnet.subnet.id }}"
+        assign_public_ip: yes
+        exact_count: 1
+        count_tag:
+          Name: Module5 Job
+    - name: Provision Jarred's EC2 Instance
+      ec2:
+        key_name: cloudclass
+        group: Module5-developer-sg
+        instance_type: t3.nano
+        image: "{{ ami_id }}"
+        instance_tags:
+          Name: Module5 Jarred
+          Module: 5
+        wait: yes
+        vpc_subnet_id: "{{ public_subnet.subnet.id }}"
+        assign_public_ip: yes
+        exact_count: 1
+        count_tag:
+          Name: Module5 Jarred
+
+
+

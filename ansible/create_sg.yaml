@@ -1,0 +1,65 @@
+---
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+  tasks:
+
+    - name: Create nginx-server-sg
+      ec2_group:
+        name: Module5-nginx-server-sg
+        description: Allows ssh, http and https from anywhere
+        vpc_id: "{{vpc.vpc.id}}"
+        rules:
+          - proto: tcp
+            ports:
+              - 22
+              - 80
+              - 443
+            cidr_ip: 0.0.0.0/0
+        tags:
+          Name: Module5-nginx-server-sg
+        state: present
+      register: nginx_server_sg
+
+    - name: Create PostgreSQL Tag Security Group
+      ec2_group:
+        name: Module5-postgres-tag-sg
+        description: Allows outbound to PostgreSQL
+        vpc_id: "{{vpc.vpc.id}}"
+        tags:
+          Name: Module5-postgres-tag-sg
+        state: present
+      register: postgres_tag_sg 
+
+    - name: Create PostgreSQL Security Group
+      ec2_group:
+        name: Module5-postgres-sg
+        description: Allows traffic on port 5432 from tagged psql sg
+        vpc_id: "{{vpc.vpc.id}}"
+        rules:
+          - proto: tcp
+            from_port: 5432
+            to_port: 5432
+            group_id: "{{postgres_tag_sg.group_id}}"
+        tags:
+          Name: Module5-postgres-sg
+        state: present
+      register: postgres_sg
+
+    - name: Update PSQL Tag to include PSQL SG
+      ec2_group:
+        name: Module5-postgres-tag-sg
+        description: Allows outbound to PostgreSQL
+        vpc_id: "{{vpc.vpc.id}}"
+        rules_egress:
+          - proto: tcp
+            from_port: 5432
+            to_port: 5432
+            group_id: "{{postgres_sg.group_id}}"
+        tags:
+          Name: Module5-postgres-tag-sg
+        state: present
+      register: postgres_tag_sg        

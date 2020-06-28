@@ -1,0 +1,99 @@
+---
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+  tasks:
+
+    - name: Create VPC
+      ec2_vpc_net:
+         name: Module5
+         cidr_block: 10.10.0.0/16
+         tags:
+           Module: 5
+      register: vpc
+
+    - name: Create Public Subnet1
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        tags:
+          Name: Module5-public1-sn
+          Module: 5
+        cidr: 10.10.1.0/24
+        state: present
+      register: public_subnet1
+
+    - name: Create Public Subnet2
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        tags:
+          Name: Module5-public2-sn
+          Module: 5
+        cidr: 10.10.2.0/24
+        state: present
+      register: public_subnet2
+
+    - name: Create Private Subnet1
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        az: us-east-1b
+        tags:
+          Name: Module5-private1-sn
+          Module: 5
+        cidr: 10.10.3.0/24
+        state: present
+      register: private_subnet1
+
+    - name: Create Private Subnet2
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc.vpc.id }}"
+        az: us-east-1a
+        tags:
+          Name: Module5-private2-sn
+          Module: 5
+        cidr: 10.10.4.0/24
+        state: present
+      register: private_subnet2
+
+    - name: Create Internet Gateway
+      ec2_vpc_igw:
+        vpc_id: "{{ vpc.vpc.id }}"
+        tags:
+          Name: Module5 gateway
+        state: present
+      register: igw
+
+    - name: Create Route Table Public
+      ec2_vpc_route_table:
+        vpc_id: "{{ vpc.vpc.id }}"
+        tags:
+          Name: Module5 Pub RT
+        subnets:
+          - "{{ public_subnet1.subnet.id }}"
+          - "{{ public_subnet2.subnet.id }}"  
+        routes:
+          - dest: 0.0.0.0/0
+            gateway_id: "{{ igw.gateway_id }}"
+
+    - name: Create NAT Gateway
+      ec2_vpc_nat_gateway:
+        subnet_id: "{{public_subnet1.subnet.id }}"
+        if_exist_do_not_create: true
+        wait: yes
+        state: present
+      register: ngw
+
+    - name: Create Route Table Private
+      ec2_vpc_route_table:
+         vpc_id: "{{ vpc.vpc.id }}"
+         tags:
+           Name: Module5 Pri RT
+         subnets:
+          - "{{ private_subnet1.subnet.id }}"
+          - "{{ private_subnet2.subnet.id }}"
+         routes:
+          - dest: 0.0.0.0/0       
+            gateway_id: "{{ngw.nat_gateway_id }}"
+         state: present    

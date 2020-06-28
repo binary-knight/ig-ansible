@@ -1,0 +1,86 @@
+---
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+  tasks:
+
+    - name: Create Launch Template
+      ec2_launch_template:
+        name: Module5-launch-template
+        image_id: "ami-09d95fab7fff3776c"
+        instance_type: t2.micro
+        key_name: cloudclass
+        iam_instance_profile: image-gallery-server-role
+        network_interfaces:
+          - device_index: 0
+            associate_public_ip_address: yes
+            groups:
+              - "{{ postgres_tag_sg.group_id }}"
+              - "{{ nginx_server_sg.group_id }}"
+        user_data: "{{ lookup('file', './ec2-scripts/ec2-prod-bootstrap.sh') | b64encode }}"
+        state: present
+      register: launch_template
+
+    - name: Create Target Group
+      elb_target_group:
+        name: Module5-tg
+        vpc_id: "{{ vpc.vpc.id }}"
+        target_type: instance
+        protocol: TCP
+        port: 80
+        stickiness_enabled: no
+        stickiness_type: source_ip
+        state: present
+      register: target_group
+
+    - name: Create Auto Scaling Group
+      ec2_asg:
+        name: Module5-asg
+        launch_template:
+          launch_template_name: Module5-launch-template
+        desired_capacity: 2
+        min_size: 2
+        max_size: 4
+        target_group_arns:
+          - "{{ target_group.target_group_arn }}"
+        vpc_zone_identifier: "{{ public_subnet1.subnet.id }}"
+        health_check_type: EC2
+        health_check_period: 500
+        tags:
+          - Name: Module5-asg
+        state: present
+
+    - name: Create Network Load Balancer
+      elb_network_lb:
+        name: Module5-ig-nlb
+        subnets:
+          - "{{ public_subnet1.subnet.id }}"
+        listeners:
+          - Protocol: TCP
+            Port: 80
+            DefaultActions:
+              - Type: forward
+                TargetGroupName: Module5-tg
+          - Protocol: TLS
+            Port: 443
+            Certificates:
+              - CertificateArn: arn:aws:acm:us-east-1:398924111563:certificate/70698f5d-ee50-41d6-9b62-3b1460e882fd
+            DefaultActions:
+              - Type: forward
+                TargetGroupArn: "{{ target_group.target_group_arn }}"
+        state: present
+
+    - name: Setting up database
+      postgresql_table:
+        db: image_gallery
+        login_host: "{{ rds_info2.instance.endpoint }}"
+        login_user: postgres
+        login_password: PassMe12#$
+        table: users
+        columns:
+          - username TEXT PRIMARY KEY NOT NULL
+          - password TEXT
+          - full_name TEXT

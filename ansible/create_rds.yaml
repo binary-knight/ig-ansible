@@ -1,0 +1,42 @@
+---
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+  tasks:
+
+    - name: Create RDS Subnet Group
+      rds_subnet_group:
+        name: Module5-private-subnet-group
+        description: Subnet Group for RDS
+        subnets:
+          - "{{private_subnet1.subnet.id}}"
+          - "{{private_subnet2.subnet.id}}"
+        state: present
+      register: rds_subnet_grp
+
+    - name: Create RDS Instance
+      rds:
+        command: create
+        instance_name: Module5-image-gallery
+        db_engine: postgres
+        db_name: image_gallery
+        size: '20'
+        instance_type: db.t2.micro
+        username: postgres
+        password: PassMe12#$
+        subnet: Module5-private-subnet-group
+        vpc_security_groups: "{{postgres_sg.group_id}}"
+      register: rds_info2
+
+    - name: Gather Information about RDS Instance
+      rds_instance_info:
+        db_instance_identifier: Module5-image-gallery
+      register: rds_info    
+
+
+
+
+

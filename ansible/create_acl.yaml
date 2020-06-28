@@ -1,0 +1,53 @@
+- hosts: localhost
+  gather_facts: no
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+  tasks:
+
+    - name: Create Public Network ACL
+      ec2_vpc_nacl:
+        vpc_id: "{{vpc.vpc.id}}"
+        name: Module5-ig-public-acl
+        subnets:
+          - Module5-ig-public-sn
+        tags:
+          Name: Module5-ig-public-acl
+        ingress:
+          - [100, tcp, 'allow', '74.192.181.121/32', null, null, 5000, 5000]
+          - [101, tcp, 'allow', '24.196.25.139/32', null, null, 5000, 5000]
+          - [102, tcp, 'allow', '24.239.105.213/32', null, null, 5000, 5000]
+          - [103, tcp, 'allow', '74.192.181.121/32', null, null, 80, 80]
+          - [104, tcp, 'allow', '24.196.25.139/32', null, null, 80, 80]
+          - [105, tcp, 'allow', '24.239.105.213/32', null, null, 80, 80]
+          - [200, tcp, 'allow', '0.0.0.0/0', null, null, 22, 22]
+          - [300, tcp, 'allow', '0.0.0.0/0', null, null, 1024, 65535]
+          - [400, tcp, 'allow', '74.192.181.121/32', null, null, 443, 443]
+          - [401, tcp, 'allow', '24.196.25.139/32', null, null, 443, 443]
+          - [402, tcp, 'allow', '24.239.105.213/32', null, null, 443, 443]
+        egress:
+          - [900, tcp, 'allow', '0.0.0.0/0', null, null, 80, 80]
+          - [800, tcp, 'allow', '0.0.0.0/0', null, null, 443, 443]
+          - [700, tcp, 'allow', '0.0.0.0/0', null, null, 1024, 65535]
+        state: present
+
+    - name: Create Private NACL
+      ec2_vpc_nacl:
+        vpc_id: "{{vpc.vpc.id}}"
+        name: Module5-ig-pri-acl
+        subnets:
+            - Module5-ig-pri-sn-1
+            - Module5-ig-pri-sn-2
+        tags:
+           Name: Module5-ig-pri-acl
+        ingress:
+            - [100, tcp, 'allow', '10.10.0.0/16', null, null, 5432, 5432]
+            - [200, tcp, 'allow', '10.10.0.0/16', null, null, 443, 443]
+            - [300, tcp, 'allow', '10.10.0.0/16', null, null, 1024, 65535]
+        egress:
+            - [900, tcp, 'allow', '10.10.0.0/16', null, null, 1024, 65535]
+            - [800, tcp, 'allow', '10.10.0.0/16', null, null, 443, 443]
+        state: present
+
+    
