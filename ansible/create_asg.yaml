@@ -58,9 +58,9 @@
         name: Module5-ig-nlb
         subnet_mappings:
           - SubnetId: "{{ public_subnet1.subnet.id }}"
-            AllocationId: "{{ eip1.addresses.allocation_id }}"
+            AllocationId: "{{ eip1.allocation_id }}"
           - SubnetId: "{{ public_subnet2.subnet.id }}"
-            AllocationId: "{{ eip2.addresses.allocation_id }}"
+            AllocationId: "{{ eip2.allocation_id }}"
         listeners:
           - Protocol: TCP
             Port: 80
