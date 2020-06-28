@@ -99,15 +99,3 @@
           - dest: 0.0.0.0/0       
             gateway_id: "{{ngw.nat_gateway_id }}"
          state: present    
-
-    - name: Gathering and Registering EIP 1
-      ec2_eip_info:
-        filters:
-          tag:Name: M5-EIP1
-      register: eip1
-
-    - name: Gathering and Registering EIP 2
-      ec2_eip_info:
-        filters:
-          tag:Name: M5-EIP2
-      register: eip2
