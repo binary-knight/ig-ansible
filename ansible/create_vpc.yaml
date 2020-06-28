@@ -106,7 +106,7 @@
           tag:Name: M5-EIP1
       register: eip1
 
-     - name: Gathering and Registering EIP 2
+    - name: Gathering and Registering EIP 2
       ec2_eip_info:
         filters:
           tag:Name: M5-EIP2
