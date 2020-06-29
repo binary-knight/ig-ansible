@@ -12,7 +12,7 @@
         region: "us-east-1"
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
-        login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3') }}"
+        login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3', region='us-east-1') }}"
         db: image_gallery
         state: present
 
@@ -22,8 +22,8 @@
         db: image_gallery
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
-        login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3') }}"
-        query: CREATE USER image_gallery LOGIN PASSWORD {{ lookup('aws_secret', 'ig-sec-image_gallery3')}};
+        login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3', region='us-east-1') }}"
+        query: CREATE USER image_gallery LOGIN PASSWORD {{ lookup('aws_secret', 'ig-sec-image_gallery3', region='us-east-1')}};
 
     - name: Create Users Table
       postgresql_query:
@@ -31,5 +31,5 @@
         db: image_gallery
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: image_gallery
-        login_password: "{{ lookup('aws_secret', 'ig-sec-image_gallery3') }}"
+        login_password: "{{ lookup('aws_secret', 'ig-sec-image_gallery3', region='us-east-1') }}"
         query: CREATE TABLE users IF NOT EXISTS ( username varchar(200) PRIMARY KEY, password varchar(200), full_name varchar(200));
