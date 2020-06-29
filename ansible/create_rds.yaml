@@ -26,7 +26,7 @@
         size: '20'
         instance_type: db.t2.micro
         username: postgres
-        password: PassMe12#$
+        password: "{{ lookup('aws_secret', 'sec-ig-postgres3', region='us-east-1') }}"
         subnet: Module5-private-subnet-group
         vpc_security_groups: "{{postgres_sg.group_id}}"
       register: rds_info2
