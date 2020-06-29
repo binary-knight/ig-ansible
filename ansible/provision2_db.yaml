@@ -29,4 +29,4 @@
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: image_gallery
         login_password: simple
-        query: CREATE TABLE users IF NOT EXISTS ( username varchar(200) PRIMARY KEY, password varchar(200), full_name varchar(200));
+        query: CREATE TABLE IF NOT EXISTS USERS ( username varchar(200) PRIMARY KEY, password varchar(200), full_name varchar(200));
