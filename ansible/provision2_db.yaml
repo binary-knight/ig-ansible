@@ -21,7 +21,7 @@
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
         login_password: PassMe12#$
-        query: CREATE USER image_gallery LOGIN PASSWORD simple;
+        query: CREATE USER image_gallery LOGIN PASSWORD 'simple';
 
     - name: Create Users Table
       postgresql_query:
