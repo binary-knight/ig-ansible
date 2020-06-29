@@ -76,14 +76,3 @@
                 TargetGroupArn: "{{ target_group.target_group_arn }}"
         state: present
 
-    - name: Setting up database
-      postgresql_table:
-        db: image_gallery
-        login_host: "{{ rds_info2.instance.endpoint }}"
-        login_user: postgres
-        login_password: PassMe12#$
-        table: users
-        columns:
-          - username TEXT PRIMARY KEY NOT NULL
-          - password TEXT
-          - full_name TEXT
