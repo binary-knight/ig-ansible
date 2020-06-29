@@ -29,6 +29,8 @@
         password: PassMe12#$
         subnet: Module5-private-subnet-group
         vpc_security_groups: "{{postgres_sg.group_id}}"
+        wait: yes
+        wait_timeout: 600
       register: rds_info2
 
     - name: Gather Information about RDS Instance
