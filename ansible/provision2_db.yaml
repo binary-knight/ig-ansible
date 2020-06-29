@@ -9,7 +9,6 @@
 
     - name: Create Image Gallery
       postgresql_db:
-        region: "us-east-1"
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
         login_password: "{{ lookup('aws_secret', 'sec-ig-postgres3', region='us-east-1') }}"
@@ -18,7 +17,6 @@
 
     - name: Create Users
       postgresql_query:
-        region: "us-east-1"
         db: image_gallery
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: postgres
@@ -27,7 +25,6 @@
 
     - name: Create Users Table
       postgresql_query:
-        region: "us-east-1"
         db: image_gallery
         login_host: "{{ rds_info2.instance.endpoint }}"
         login_user: image_gallery
