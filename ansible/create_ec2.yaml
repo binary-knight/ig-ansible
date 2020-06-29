@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    ami_id: "ami-09d95fab7fff3776c"
+  module_defaults:
+    group/aws:
+      profile: auburn
+      region: "us-east-1"
+
+  tasks:
+    - name: Create Bastion Host to Configure DB
+      ec2:
+        key_name: cloudclass
+        group: [ "{{ nginx_server_sg.group_name }}", "{{ postgres_tag_sg.group_name }}" ]
+        instance_type: t2.micro
+        image: "{{ ami_id }}"
+        instance_tags:
+          Name: Module5 Bastion
+          Module: 5
+        wait: yes
+        vpc_subnet_id: "{{ public_subnet1.subnet.id }}"
+        user_data: "{{ lookup('file', './ec2-scripts/ec2-db-provision.sh') | b64encode }}"
+        assign_public_ip: yes
+        exact_count: 1
+        count_tag: 
+          Name: Module5 Bastion
+      register: ec2_bastion
+      #when: rds_info2['changed'] == true
+
+    - name: Terminate Bastion
+      ec2:
+        state: 'absent'
+        instance_ids: " {{ec2_bastion.instance_ids }}"
+      when: rds_info2['changed'] == true
+
+
+

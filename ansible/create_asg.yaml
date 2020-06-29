@@ -7,6 +7,43 @@
       region: "us-east-1"
   tasks:
 
+    - name: Create Target Group
+      elb_target_group:
+        name: Module5-tg
+        vpc_id: "{{ vpc.vpc.id }}"
+        target_type: instance
+        protocol: TCP
+        port: 80
+        stickiness_enabled: no
+        stickiness_type: source_ip
+        state: present
+        health_check_path: /
+      register: target_group
+
+    - name: Create Network Load Balancer
+      elb_network_lb:
+        name: Module5-ig-nlb
+        subnet_mappings:
+          - SubnetId: "{{ public_subnet1.subnet.id }}"
+            AllocationId: eipalloc-092c15e44ba53b2e5
+          - SubnetId: "{{ public_subnet2.subnet.id }}"
+            AllocationId: eipalloc-093d166340e95f081
+        purge_listeners: yes    
+        listeners:
+          - Protocol: TCP
+            Port: 80
+            DefaultActions:
+              - Type: forward
+                TargetGroupName: Module5-tg
+          - Protocol: TLS
+            Port: 443
+            Certificates:
+              - CertificateArn: arn:aws:acm:us-east-1:398924111563:certificate/70698f5d-ee50-41d6-9b62-3b1460e882fd
+            DefaultActions:
+              - Type: forward
+                TargetGroupArn: "{{ target_group.target_group_arn }}"
+        state: present
+
     - name: Create Launch Template
       ec2_launch_template:
         name: Module5-launch-template
@@ -24,18 +61,6 @@
         state: present
       register: launch_template
 
-    - name: Create Target Group
-      elb_target_group:
-        name: Module5-tg
-        vpc_id: "{{ vpc.vpc.id }}"
-        target_type: instance
-        protocol: TCP
-        port: 80
-        stickiness_enabled: no
-        stickiness_type: source_ip
-        state: present
-      register: target_group
-
     - name: Create Auto Scaling Group
       ec2_asg:
         name: Module5-asg
@@ -51,28 +76,5 @@
         health_check_period: 500
         tags:
           - Name: Module5-asg
-        state: present
-
-    - name: Create Network Load Balancer
-      elb_network_lb:
-        name: Module5-ig-nlb
-        subnet_mappings:
-          - SubnetId: "{{ public_subnet1.subnet.id }}"
-            AllocationId: eipalloc-092c15e44ba53b2e5
-          - SubnetId: "{{ public_subnet2.subnet.id }}"
-            AllocationId: eipalloc-093d166340e95f081
-        listeners:
-          - Protocol: TCP
-            Port: 80
-            DefaultActions:
-              - Type: forward
-                TargetGroupName: Module5-tg
-          - Protocol: TLS
-            Port: 443
-            Certificates:
-              - CertificateArn: arn:aws:acm:us-east-1:398924111563:certificate/70698f5d-ee50-41d6-9b62-3b1460e882fd
-            DefaultActions:
-              - Type: forward
-                TargetGroupArn: "{{ target_group.target_group_arn }}"
-        state: present
+        state: present  
 
