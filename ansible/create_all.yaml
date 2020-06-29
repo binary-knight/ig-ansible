@@ -4,4 +4,4 @@
 - import_playbook: create_sg.yaml
 - import_playbook: create_rds.yaml
 - import_playbook: create_asg.yaml
-- import_playbook: provision_db.yaml
+- import_playbook: provision2_db.yaml
