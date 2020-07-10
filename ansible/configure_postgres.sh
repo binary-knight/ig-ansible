@@ -2,7 +2,7 @@
 
 #PSQL variables
 psqlUser='postgres'
-psqlPassword='PassMe12#$'
+psqlPassword=''
 psqlIGUSER='image_gallery'
 psqlIGpass='simple'
 db=image_gallery
@@ -11,7 +11,7 @@ RUN_AS_POSGRES="psql -X -U $psqlUser password=$psqlPassword --set ON_ERROR_STOP=
 RUN_AS_IG="psql -X -U $psqlIGUSER password=$psqlIGpass --set ON_ERROR_STOP=on"
 
 $RUN_AS_POSGRES << PSQL
-CREATE USER image_gallery login password 'simple';
+CREATE USER image_gallery login password '';
 GRANT image_gallery to postgres;
 CREATE DATABASE image_gallery owner image_gallery;
 PSQL
