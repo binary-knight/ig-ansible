@@ -38,7 +38,7 @@
           - Protocol: TLS
             Port: 443
             Certificates:
-              - CertificateArn: arn:aws:acm:us-east-1:398924111563:certificate/70698f5d-ee50-41d6-9b62-3b1460e882fd
+              - CertificateArn: 
             DefaultActions:
               - Type: forward
                 TargetGroupArn: "{{ target_group.target_group_arn }}"
