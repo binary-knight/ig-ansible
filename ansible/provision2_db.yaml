@@ -20,8 +20,8 @@
         db: image_gallery
         login_host: "{{ rds_address }}"
         login_user: postgres
-        login_password: PassMe12#$
-        query: CREATE USER image_gallery LOGIN PASSWORD 'simple';
+        login_password: 
+        query: CREATE USER image_gallery LOGIN PASSWORD '';
 
     - name: Create Users Table
       postgresql_query:
